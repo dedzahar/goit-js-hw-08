@@ -63,3 +63,53 @@ const images = [
     description: 'Lighthouse Coast Sea',
   },
 ];
+
+const galleryContainer = document.querySelector('.gallery');
+galleryContainer.insertAdjacentHTML('beforeend', createMarkUp(images));
+galleryContainer.addEventListener('click', handleClick);
+
+function createMarkUp(imagesArr) {
+    return imagesArr
+        .map(({ preview: smallSrc, original: bigSrc, description: altTxt }) => `
+        <li class="gallery-item">
+  <a class="gallery-link" href="${bigSrc}">
+    <img
+      class="gallery-image"
+      src="${smallSrc}"
+      data-source="${bigSrc}"
+      alt="${altTxt}"
+    />
+  </a>
+</li>`
+        )
+        .join('');
+}
+
+
+function handleClick(event) {
+  event.preventDefault();
+  const element = event.target;
+  if (element.nodeName != 'IMG') {
+      return;
+  }
+  const imgSource = element.dataset.source;
+  const imgAltTxt = element.alt;
+  // console.log(element.dataset.source);
+  const instance = basicLightbox.create(
+    `<img src="${imgSource}" alt="${imgAltTxt}" width="1112" height="640" />`, 
+    {
+      onShow: instance => {
+        document.addEventListener('keydown', escKeyPressHandler);
+      },
+      onClose: instance => {
+        document.removeEventListener('keydown', escKeyPressHandler);
+      },
+    }
+  );
+  instance.show();
+  function escKeyPressHandler(event) {
+    if (event.code === 'Escape') {
+      instance.close();
+    }
+  }
+}
